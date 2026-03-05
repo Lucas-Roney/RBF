@@ -1,2 +1,0 @@
-# RBF
-RBF site code
