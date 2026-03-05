@@ -86,7 +86,7 @@ select {
 #tabs {
   display: flex;
   gap: 0;
-  margin: 15px 35px 0px;
+  margin: 15px 40px 0px;
   border-bottom: 2px solid black;
   width: fit-content;
 }
@@ -121,7 +121,7 @@ select {
 
 /* ── Normal plot ── */
 #controls {
-  padding: 4px 6px;
+  padding: 4px 0px;
 }
 
 .input-row {
@@ -131,10 +131,6 @@ select {
 
 #test-func-label {
   margin-left: 35px;
-}
-
-#epsilon_title {
-  margin-right: 10px;
 }
 
 #slider {
@@ -199,11 +195,10 @@ select {
 
 /* ── Best epsilon ── */
 #best-e-controls {
-  padding: 4px 6px;
+  padding: 4px 0px;
 }
 
 #start, #stop {
-  margin-left: 10px;
   width: 60px;
   color: black;
   font-size: 15px;
