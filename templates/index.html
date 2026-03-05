@@ -1,0 +1,65 @@
+<html>
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <h1>RBF Interpolation</h1>
+    <hr>
+
+    <div id="shared-controls">
+        <div class="input-row">
+            <label for="RBF">RBF:</label>
+            <select id="RBF" name="basis function">
+                <option value="MQ">MQ</option>
+                <option value="IQ">IQ</option>
+                <option value="IMQ">IMQ</option>
+                <option value="GA">GA</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="tabs">
+        <button class="tab active" onclick="switchTab('normal')">Normal Plot</button>
+        <button class="tab" onclick="switchTab('best')">Find Best ε</button>
+    </div>
+
+    <!-- Normal plot panel -->
+    <div id="panel-normal" class="panel">
+        <div id="controls">
+            <div class="input-row">
+                <label for="slider" id="epsilon_title">ε value:</label>
+                <input type="range" id="slider" min="0.1" max="10.0" step="0.1" value="5.0">
+                <input type="number" id="epsilon" step="0.1" min="0.1" max="15.0" value="5.0">
+            </div>
+            <button id="Go">Go</button>
+        </div>
+        <div id="result">
+            <p id="error-msg"></p>
+            <img id="plot-img" src="" alt="" style="display:none;">
+        </div>
+    </div>
+
+    <!-- Best epsilon panel -->
+    <div id="panel-best" class="panel" style="display:none;">
+        <div id="best-e-controls">
+            <div class="input-row">
+                <label for="start">ε start:</label>
+                <input type="number" id="start" step="0.1" value="3" required>
+                <label for="stop" id="stop_title">ε stop:</label>
+                <input type="number" id="stop" step="0.1" value="7" required>
+            </div>
+            <button id="FindBestE">Find Best ε</button>
+        </div>
+        <div id="best-e-result">
+            <p id="best-e-msg"></p>
+            <img id="interp-img"    src="" alt="" style="display:none;">
+            <img id="cum-error-img" src="" alt="" style="display:none;">
+            <img id="ind-error-img" src="" alt="" style="display:none;">
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='hello.js') }}"></script>
+</body>
+</html>

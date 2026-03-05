@@ -1,0 +1,214 @@
+h1 {
+  margin-top: 20px;
+  text-align: center;
+  font-family: 'Oswald', sans-serif;
+  font-size: 40px;
+}
+
+hr {
+  width: 79em;
+}
+
+body {
+  font-family: 'Oswald', sans-serif;
+}
+
+label {
+  font-size: 25px;
+}
+
+select {
+  font-size: 13px;
+}
+
+#RBF {
+  margin-left: 10px;
+  color: black;
+  font-size: 15px;
+  font-family: 'Oswald', sans-serif;
+  background-color: white;
+  border: 1px solid black;
+  border-radius: 3px;
+  padding: 3px 24px 3px 8px;
+  appearance: none;                        /* ← removes the default browser arrow */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='black'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;  /* ← places the custom arrow */
+  cursor: pointer;
+}
+
+#RBF:hover {
+  color: black;
+  background-color: #f5f5f5;
+}
+
+#RBF:focus {
+  color: black;
+  background-color: #f5f5f5;
+}
+
+/* ── Shared RBF row ── */
+#shared-controls {
+  padding: 10px 6px 0px 6px;
+}
+
+/* ── Tabs ── */
+#tabs {
+  display: flex;
+  gap: 0;
+  margin: 15px 35px 0px;
+  border-bottom: 2px solid black;
+  width: fit-content;
+}
+
+.tab {
+  padding: 5px 18px;
+  font-size: 14px;
+  font-family: 'Oswald', sans-serif;
+  background-color: white;
+  border: 1px solid black;
+  border-bottom: none;
+  cursor: pointer;
+  color: #888;
+}
+
+.tab.active {
+  color: black;
+  font-weight: 600;
+  background-color: #f5f5f5;
+}
+
+.tab:hover:not(.active) {
+  color: darkslategray;
+  background-color: #fafafa;
+}
+
+/* ── Panels ── */
+.panel {
+  padding: 4px 6px;
+  margin-top: -5px;
+}
+
+/* ── Normal plot ── */
+#controls {
+  padding: 4px 6px;
+}
+
+.input-row {
+  margin-left: 35px;
+  margin-top: 10px;
+}
+
+#epsilon_title {
+  margin-right: 10px;
+}
+
+#slider {
+  margin-left: 10px;
+  width: 180px;
+  accent-color: black;
+  cursor: pointer;
+}
+
+#epsilon {
+  margin-left: 10px;
+  color: black;
+  font-size: 15px;
+  font-family: 'Oswald', sans-serif;
+  background-color: white;
+  border: 1px solid black;
+  border-radius: 3px;
+  padding: 3px 6px;
+  width: 60px;
+}
+
+#epsilon-display {
+  margin-left: 10px;
+  font-size: 18px;
+  min-width: 30px;  /* ← stops the layout shifting when the number changes width */
+}
+
+#Go {
+  padding: 4px 6px;
+  margin-top: 15px;
+  margin-left: 35px;
+  font-size: 14px;
+  font-family: 'Oswald', sans-serif;
+  background-color: white;
+  border: 1px solid black;
+  border-bottom: 2px solid black;
+  cursor: pointer;
+  color: darkslategray;
+  
+}
+
+#Go:hover {
+  color: black;
+  background-color: #f5f5f5;
+}
+
+#result {
+  padding: 20px 35px;
+  justify-items: center;
+}
+
+#plot-img {
+  max-width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+#error-msg {
+  color: #c0392b;
+  font-size: 15px;
+}
+
+/* ── Best epsilon ── */
+#best-e-controls {
+  padding: 4px 6px;
+}
+
+#start, #stop {
+  margin-left: 10px;
+  width: 60px;
+  color: black;
+  font-size: 15px;
+  font-family: 'Oswald', sans-serif;
+  background-color: white;
+  border: 1px solid black;
+  border-radius: 3px;
+  padding: 3px 6px;  /* ← adds a little breathing room like your RBF select */
+}
+
+#stop_title {
+  margin-left: 30px;
+}
+
+#FindBestE {
+  padding: 4px 6px;
+  margin-top: 15px;
+  margin-left: 35px;
+  font-size: 14px;
+  font-family: 'Oswald', sans-serif;
+  background-color: white;
+  border: 1px solid black;
+  border-bottom: 2px solid black;
+  cursor: pointer;
+  color: darkslategray;
+  
+}
+
+#FindBestE:hover {
+  color: black;
+  background-color: #fafafa;
+}
+
+#best-e-result {
+  padding: 20px 35px;
+  justify-items: center;
+}
+
+#best-e-msg {
+  font-size: 15px;
+  color: #2c7a2c;
+}
