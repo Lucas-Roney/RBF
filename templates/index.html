@@ -1,5 +1,8 @@
+<!DOCTYPE html>
 <html>
 <head>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
@@ -10,13 +13,22 @@
 
     <div id="shared-controls">
         <div class="input-row">
-            <label for="RBF">RBF:</label>
+            <label for="RBF" id="RBF-label">RBF:</label>
             <select id="RBF" name="basis function">
                 <option value="MQ">MQ</option>
                 <option value="IQ">IQ</option>
                 <option value="IMQ">IMQ</option>
                 <option value="GA">GA</option>
             </select>
+            
+            <label for="test function" id="test-func-label">Test Function:</label>
+            <select id="testFunc" name="test function">
+                <option value="test_func1">Runge</option>
+                <option value="test_func2">tanh</option>
+                <option value="test_func3">exp</option>
+                <option value="test_func4">abs</option>
+            </select>
+            <span id="func-display"></span>
         </div>
     </div>
 

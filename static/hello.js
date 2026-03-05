@@ -7,6 +7,21 @@ function switchTab(tab) {
     });
 }
 
+const funcLatex = {
+    test_func1: "\\frac{1}{1 + 16x^2}",
+    test_func2: "\\frac{e^{10x} - e^{-10x}}{e^{10x} + e^{-10x}}",
+    test_func3: "e^{x}",
+    test_func4: "\\left|x\\right|",
+};
+
+function updateFuncDisplay() {
+    const val = document.getElementById("testFunc").value;
+    katex.render(funcLatex[val], document.getElementById("func-display"));
+}
+
+document.getElementById("testFunc").addEventListener("change", updateFuncDisplay);
+updateFuncDisplay();
+
 const epsilonSlider = document.getElementById("slider");
 const epsilonInput  = document.getElementById("epsilon");
 
@@ -48,7 +63,7 @@ document.getElementById("Go").addEventListener("click", async () => {
         const response = await fetch("/interpolate", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ rbf, epsilon })
+            body: JSON.stringify({ rbf, func: document.getElementById("testFunc").value, epsilon })
         });
 
         const data = await response.json();
@@ -89,7 +104,7 @@ document.getElementById("FindBestE").addEventListener("click", async () => {
         const response = await fetch("/find_best_e", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ rbf, start, stop })
+            body: JSON.stringify({ rbf, func: document.getElementById("testFunc").value, start, stop })
         });
 
         const data = await response.json();

@@ -24,13 +24,28 @@ def GA(r, e):
 
 RBF_MAP = {"MQ": MQ, "IQ": IQ, "IMQ": IMQ, "GA": GA}
 
+# ── Test functions ───────────────────────────────────────────────────────────
+
+def test_func1(x_val):
+    return 1 / (1 + 16 * (x_val ** 2))
+
+def test_func2(x_val):
+    return np.tanh(10 * x_val)
+
+def test_func3(x_val):
+    return np.exp(x_val)
+
+def test_func4(x_val):
+    return abs(x_val)
+
+FUNC_MAP = {"test_func1": test_func1, "test_func2": test_func2, "test_func3": test_func3, "test_func4": test_func4}
+
 # ── Interpolation logic ───────────────────────────────────────────────────────
 
 x = np.linspace(-1, 1, 21)
-f = 1 / (1 + 16 * x**2)
 N = len(x)
 
-def fillMatrix(e, rbf_name):
+def fillMatrix(e, rbf_name, f):
     rbf = RBF_MAP[rbf_name]
     A = np.zeros((N, N))          
     for i in range(N):
@@ -46,10 +61,12 @@ def interpolate_point(x_val, e, c, rbf_name):
         total += c[j] * rbf(abs(x_val - x[j]), e)  
     return total
 
-def run_interpolation(rbf_name, epsilon):        
+def run_interpolation(rbf_name, epsilon, func_name):     
+    test_func = FUNC_MAP[func_name] 
+    f = test_func(x)  
     e = epsilon                                 
 
-    c = fillMatrix(e, rbf_name)
+    c = fillMatrix(e, rbf_name, f)
 
     x_vals = np.linspace(-1, 1, 300)
     y_vals = []
@@ -87,18 +104,18 @@ def interpolate():
         return jsonify({"error": "Unknown RBF"}), 400
 
     try:
-        img = run_interpolation(rbf_name, epsilon) 
+        func_name = data.get("func", "test_func1")
+        img = run_interpolation(rbf_name, epsilon, func_name)
         return jsonify({"image": img})
     except np.linalg.LinAlgError:
         return jsonify({"error": "Singular matrix — try a different ε value."}), 400
 
 # ── Error / best-epsilon logic ────────────────────────────────────────────────
 
-def test_func(x_val):
-    return 1 / (1 + 16 * (x_val ** 2))
-
-def find_best_e(start, stop, rbf_name):
+def find_best_e(start, stop, rbf_name, func_name):
     rbf = RBF_MAP[rbf_name]
+    test_func = FUNC_MAP[func_name]
+    f = test_func(x)
     x_vals = np.linspace(-1, 1, 1000)
     ideal_e = None
     min_error = float('inf')
@@ -129,9 +146,11 @@ def find_best_e(start, stop, rbf_name):
 
     return ideal_e, min_error, error_vals
 
-def make_best_e_plots(rbf_name, start, stop):
-    ideal_e, min_error, error_vals = find_best_e(start, stop, rbf_name)
+def make_best_e_plots(rbf_name, func_name, start, stop):
+    ideal_e, min_error, error_vals = find_best_e(start, stop, rbf_name, func_name)
     rbf = RBF_MAP[rbf_name]
+    test_func = FUNC_MAP[func_name]
+    f = test_func(x)
     x_vals = np.linspace(-1, 1, 1000)
 
     # Recompute interpolation at ideal_e
@@ -168,16 +187,18 @@ def make_best_e_plots(rbf_name, start, stop):
     ax.plot(x_e, y_e, c='k', zorder=1)
     sc = ax.scatter(x_e, y_e, c=y_e, cmap='RdYlGn_r', zorder=2)
     fig.colorbar(sc, label='Error Severity')
-    ax.annotate(
-        f"min error: {min_error:.3f}",
-        xy=(ideal_e, min_error),
-        xytext=(50, 0),
-        textcoords='offset points',
-        bbox=dict(boxstyle='round,pad=0.3', fc='w', alpha=0.3)
-    )
+    ax.plot([],[],' ', label=f"Min error: {round(min_error, 3)}")
+    #ax.annotate(
+    #    f"min error: {min_error:.3f}",
+    #    xy=(ideal_e, min_error),
+    #    xytext=(50, 0),
+    #    textcoords='offset points',
+    #    bbox=dict(boxstyle='round,pad=0.3', fc='w', alpha=0.3)
+    #)
     ax.set_title(f'Cumulative Error by ε  |  {rbf_name}')
     ax.set_xlabel('ε values')
     ax.set_ylabel('Cumulative error')
+    ax.legend()
     fig.tight_layout()
     buf = io.BytesIO()
     fig.savefig(buf, format='png', dpi=120)
@@ -209,6 +230,7 @@ def make_best_e_plots(rbf_name, start, stop):
 def best_e_route():
     data = request.get_json()
     rbf_name = data.get("rbf", "GA")
+    func_name = data.get("func", "test_func1")
     start = float(data.get("start", 1))
     stop  = float(data.get("stop", 10))
 
@@ -218,7 +240,7 @@ def best_e_route():
         return jsonify({"error": "Start must be less than stop."}), 400
 
     try:
-        plots, ideal_e, min_error = make_best_e_plots(rbf_name, start, stop)
+        plots, ideal_e, min_error = make_best_e_plots(rbf_name, func_name, start, stop)
         return jsonify({**plots, "ideal_e": ideal_e, "min_error": round(min_error, 4)})
     except np.linalg.LinAlgError:
         return jsonify({"error": "Singular matrix in range — try different bounds."}), 400
