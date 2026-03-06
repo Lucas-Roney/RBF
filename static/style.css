@@ -51,7 +51,7 @@ select {
   margin-left: 10px;
 }
 
-#test-function {
+#testFunc {
   margin-left: 10px;
   color: black;
   font-size: 15px;
@@ -67,12 +67,12 @@ select {
   cursor: pointer;
 }
 
-#test-function:hover {
+#testFunc:hover {
   color: black;
   background-color: #f5f5f5;
 }
 
-#test-function:focus {
+#testFunc:focus {
   color: black;
   background-color: #f5f5f5;
 }
