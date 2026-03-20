@@ -118,6 +118,7 @@ def find_best_e(start, stop, rbf_name, func_name):
     f = test_func(x)
     x_vals = np.linspace(-1, 1, 1000)
     ideal_e = None
+    max_error = float('-inf')
     min_error = float('inf')
     error_vals = {}
 
@@ -132,17 +133,17 @@ def find_best_e(start, stop, rbf_name, func_name):
         except np.linalg.LinAlgError:
             continue
 
-        error = 0.0
+        max_error = float('-inf')
         for xv in x_vals:
             interp = sum(c[j] * rbf(abs(xv - x[j]), e) for j in range(N))
             err = abs(interp - test_func(xv))
-            error += err
-
-        error_vals[e] = error
-
-        if error < min_error:
-            min_error = error
+            if err > max_error:
+                max_error = err
+        if max_error < min_error:
+            min_error = max_error
             ideal_e = e
+
+        error_vals[e] = max_error   
 
     return ideal_e, min_error, error_vals
 
@@ -180,14 +181,14 @@ def make_best_e_plots(rbf_name, func_name, start, stop):
     buf.seek(0)
     plots['interp'] = base64.b64encode(buf.read()).decode('utf-8')
 
-    # ── Plot 2: Cumulative Error by ε ─────────────────────────────────────────
+    # ── Plot 2: Smallest Maximum Error by ε ─────────────────────────────────────────
     x_e = list(error_vals.keys())
     y_e = list(error_vals.values())
     fig, ax = plt.subplots(figsize=(7, 4))
     ax.plot(x_e, y_e, c='k', zorder=1)
     sc = ax.scatter(x_e, y_e, c=y_e, cmap='RdYlGn_r', zorder=2)
     fig.colorbar(sc, label='Error Severity')
-    ax.plot([],[],' ', label=f"Min error: {round(min_error, 3)}")
+    ax.plot([],[],' ', label=f"Min error: {round(min_error, 5)}")
     #ax.annotate(
     #    f"min error: {min_error:.3f}",
     #    xy=(ideal_e, min_error),
@@ -195,9 +196,9 @@ def make_best_e_plots(rbf_name, func_name, start, stop):
     #    textcoords='offset points',
     #    bbox=dict(boxstyle='round,pad=0.3', fc='w', alpha=0.3)
     #)
-    ax.set_title(f'Cumulative Error by ε  |  {rbf_name}')
+    ax.set_title(f'Max Residual Error by ε  |  {rbf_name}')
     ax.set_xlabel('ε values')
-    ax.set_ylabel('Cumulative error')
+    ax.set_ylabel('Max Residual Error')
     ax.legend()
     fig.tight_layout()
     buf = io.BytesIO()
