@@ -1,0 +1,242 @@
+[1mdiff --git a/app.py b/app.py[m
+[1mindex 1f48bf8..7139901 100644[m
+[1m--- a/app.py[m
+[1m+++ b/app.py[m
+[36m@@ -110,6 +110,57 @@[m [mdef interpolate():[m
+     except np.linalg.LinAlgError:[m
+         return jsonify({"error": "Singular matrix — try a different ε value."}), 400[m
+ [m
+[32m+[m[32m@app.route("/interpolate_3d", methods=["POST"])[m
+[32m+[m[32mdef interpolate_3d():[m
+[32m+[m[32m    data = request.get_json()[m
+[32m+[m[32m    epsilon = float(data.get("epsilon", 5))[m
+[32m+[m
+[32m+[m[32m    try:[m
+[32m+[m[32m        x_grid = np.linspace(-1, 1, 11)[m
+[32m+[m[32m        y_grid = np.linspace(-1, 1, 11)[m
+[32m+[m[32m        xx, yy = np.meshgrid(x_grid, y_grid)[m
+[32m+[m[32m        xx_flat = xx.flatten()[m
+[32m+[m[32m        yy_flat = yy.flatten()[m
+[32m+[m[32m        f = 1 / (1 + 16 * (xx_flat**2 + yy_flat**2))[m
+[32m+[m
+[32m+[m[32m        # Build and solve the system[m
+[32m+[m[32m        dx = xx_flat[:, None] - xx_flat[None, :][m
+[32m+[m[32m        dy = yy_flat[:, None] - yy_flat[None, :][m
+[32m+[m[32m        r  = np.sqrt(dx**2 + dy**2)[m
+[32m+[m[32m        A  = np.exp(-(epsilon * r)**2)[m
+[32m+[m[32m        c  = np.linalg.solve(A, f)[m
+[32m+[m
+[32m+[m[32m        # Evaluate on a fine grid for plotting[m
+[32m+[m[32m        x_plot = np.linspace(-1, 1, 100)[m
+[32m+[m[32m        y_plot = np.linspace(-1, 1, 100)[m
+[32m+[m[32m        xx_plot, yy_plot = np.meshgrid(x_plot, y_plot)[m
+[32m+[m[32m        xx_flat_plot = xx_plot.flatten()[m
+[32m+[m[32m        yy_flat_plot = yy_plot.flatten()[m
+[32m+[m
+[32m+[m[32m        dx2 = xx_flat_plot[:, None] - xx_flat[None, :][m
+[32m+[m[32m        dy2 = yy_flat_plot[:, None] - yy_flat[None, :][m
+[32m+[m[32m        r2  = np.sqrt(dx2**2 + dy2**2)[m
+[32m+[m[32m        z_vals = (np.exp(-(epsilon * r2)**2) @ c).reshape(xx_plot.shape)[m
+[32m+[m
+[32m+[m[32m        # Plot[m
+[32m+[m[32m        fig = plt.figure(figsize=(8, 6))[m
+[32m+[m[32m        ax  = fig.add_subplot(111, projection='3d')[m
+[32m+[m[32m        ax.plot_surface(xx_plot, yy_plot, z_vals, cmap='Spectral', alpha=0.8)[m
+[32m+[m[32m        ax.scatter(xx_flat, yy_flat, f, color='k', s=10)[m
+[32m+[m[32m        ax.set_title(f'ε = {epsilon}')[m
+[32m+[m[32m        ax.set_xlabel('x')[m
+[32m+[m[32m        ax.set_ylabel('y')[m
+[32m+[m[32m        ax.set_zlabel('z')[m
+[32m+[m
+[32m+[m[32m        buf = io.BytesIO()[m
+[32m+[m[32m        fig.savefig(buf, format='png', dpi=120)[m
+[32m+[m[32m        plt.close(fig)[m
+[32m+[m[32m        buf.seek(0)[m
+[32m+[m[32m        return jsonify({"image": base64.b64encode(buf.read()).decode("utf-8")})[m
+[32m+[m
+[32m+[m[32m    except np.linalg.LinAlgError:[m
+[32m+[m[32m        return jsonify({"error": "Singular matrix — try a different ε value."}), 400[m
+[32m+[m
+ # ── Error / best-epsilon logic ────────────────────────────────────────────────[m
+ [m
+ def find_best_e(start, stop, rbf_name, func_name):[m
+[1mdiff --git a/static/hello.js b/static/hello.js[m
+[1mindex b3c660c..a6db9ac 100644[m
+[1m--- a/static/hello.js[m
+[1m+++ b/static/hello.js[m
+[36m@@ -1,9 +1,10 @@[m
+ function switchTab(tab) {[m
+[31m-    document.getElementById("panel-normal").style.display = tab === "normal" ? "block" : "none";[m
+[32m+[m[32m    document.getElementById("panel-2d").style.display = tab === "2d" ? "block" : "none";[m
+[32m+[m[32m    document.getElementById("panel-3d").style.display = tab === "3d" ? "block" : "none";[m
+     document.getElementById("panel-best").style.display   = tab === "best"   ? "block" : "none";[m
+ [m
+     document.querySelectorAll(".tab").forEach((btn, i) => {[m
+[31m-        btn.classList.toggle("active", (i === 0 && tab === "normal") || (i === 1 && tab === "best"));[m
+[32m+[m[32m        btn.classList.toggle("active", (i === 0 && tab === "2d") || (i === 1 && tab === "3d") || i === 2 && tab === "best");[m
+     });[m
+ }[m
+ [m
+[36m@@ -125,4 +126,58 @@[m [mdocument.getElementById("FindBestE").addEventListener("click", async () => {[m
+         msg.style.color = "#c0392b";[m
+         msg.textContent = "Something went wrong. Is Flask running?";[m
+     }[m
+[32m+[m[32m});[m
+[32m+[m
+[32m+[m[32mconst slider3d = document.getElementById("slider-3d");[m
+[32m+[m[32mconst input3d  = document.getElementById("epsilon-3d");[m
+[32m+[m
+[32m+[m[32mslider3d.addEventListener("input", () => {[m
+[32m+[m[32m    input3d.value = slider3d.value;[m
+[32m+[m[32m});[m
+[32m+[m
+[32m+[m[32minput3d.addEventListener("input", () => {[m
+[32m+[m[32m    let val = parseFloat(input3d.value);[m
+[32m+[m[32m    if (!isNaN(val)) slider3d.value = val;[m
+[32m+[m[32m});[m
+[32m+[m
+[32m+[m[32minput3d.addEventListener("change", () => {[m
+[32m+[m[32m    let val = parseFloat(input3d.value);[m
+[32m+[m[32m    if (!isNaN(val)) {[m
+[32m+[m[32m        slider3d.value = val;[m
+[32m+[m[32m        input3d.value = val.toFixed(1);[m
+[32m+[m[32m    }[m
+[32m+[m[32m});[m
+[32m+[m
+[32m+[m[32mdocument.getElementById("Go3D").addEventListener("click", async () => {[m
+[32m+[m[32m    const epsilon  = parseFloat(slider3d.value);[m
+[32m+[m[32m    const errorMsg = document.getElementById("error-msg-3d");[m
+[32m+[m[32m    const plotImg  = document.getElementById("plot-img-3d");[m
+[32m+[m
+[32m+[m[32m    if (isNaN(epsilon)) {[m
+[32m+[m[32m        errorMsg.textContent = "Please enter a valid epsilon value.";[m
+[32m+[m[32m        return;[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    errorMsg.textContent = "Loading...";[m
+[32m+[m[32m    plotImg.style.display = "none";[m
+[32m+[m
+[32m+[m[32m    try {[m
+[32m+[m[32m        const response = await fetch("/interpolate_3d", {[m
+[32m+[m[32m            method: "POST",[m
+[32m+[m[32m            headers: { "Content-Type": "application/json" },[m
+[32m+[m[32m            body: JSON.stringify({ epsilon })[m
+[32m+[m[32m        });[m
+[32m+[m
+[32m+[m[32m        const data = await response.json();[m
+[32m+[m
+[32m+[m[32m        if (data.error) {[m
+[32m+[m[32m            errorMsg.textContent = data.error;[m
+[32m+[m[32m        } else {[m
+[32m+[m[32m            errorMsg.textContent = "";[m
+[32m+[m[32m            plotImg.src = "data:image/png;base64," + data.image;[m
+[32m+[m[32m            plotImg.style.display = "block";[m
+[32m+[m[32m        }[m
+[32m+[m[32m    } catch (err) {[m
+[32m+[m[32m        errorMsg.textContent = "Something went wrong. Is Flask running?";[m
+[32m+[m[32m    }[m
+ });[m
+\ No newline at end of file[m
+[1mdiff --git a/static/style.css b/static/style.css[m
+[1mindex e34a04a..ae18a44 100644[m
+[1m--- a/static/style.css[m
+[1m+++ b/static/style.css[m
+[36m@@ -120,7 +120,7 @@[m [mselect {[m
+ }[m
+ [m
+ /* ── Normal plot ── */[m
+[31m-#controls {[m
+[32m+[m[32m#controls, #controls-3d {[m
+   padding: 4px 0px;[m
+ }[m
+ [m
+[36m@@ -133,14 +133,14 @@[m [mselect {[m
+   margin-left: 35px;[m
+ }[m
+ [m
+[31m-#slider {[m
+[32m+[m[32m#slider, #slider-3d {[m
+   margin-left: 10px;[m
+   width: 180px;[m
+   accent-color: black;[m
+   cursor: pointer;[m
+ }[m
+ [m
+[31m-#epsilon {[m
+[32m+[m[32m#epsilon, #epsilon-3d {[m
+   margin-left: 10px;[m
+   color: black;[m
+   font-size: 15px;[m
+[36m@@ -158,7 +158,7 @@[m [mselect {[m
+   min-width: 30px;  /* ← stops the layout shifting when the number changes width */[m
+ }[m
+ [m
+[31m-#Go {[m
+[32m+[m[32m#Go, #Go3D {[m
+   padding: 4px 6px;[m
+   margin-top: 15px;[m
+   margin-left: 35px;[m
+[36m@@ -168,15 +168,17 @@[m [mselect {[m
+   border: 1px solid black;[m
+   border-bottom: 2px solid black;[m
+   cursor: pointer;[m
+[31m-  color: darkslategray;[m
+[32m+[m[32m  color: #888;[m
+   [m
+ }[m
+ [m
+[31m-#Go:hover {[m
+[32m+[m[32m#Go:hover, #Go3D:hover {[m
+   color: black;[m
+   background-color: #f5f5f5;[m
+ }[m
+ [m
+[32m+[m
+[32m+[m
+ #result {[m
+   padding: 20px 35px;[m
+   justify-items: center;[m
+[1mdiff --git a/templates/index.html b/templates/index.html[m
+[1mindex b91ef80..30caf2b 100644[m
+[1m--- a/templates/index.html[m
+[1m+++ b/templates/index.html[m
+[36m@@ -34,12 +34,13 @@[m
+     </div>[m
+ [m
+     <div id="tabs">[m
+[31m-        <button class="tab active" onclick="switchTab('normal')">Normal Plot</button>[m
+[32m+[m[32m        <button class="tab active" onclick="switchTab('2d')">2D Plot</button>[m
+[32m+[m[32m        <button class="tab" onclick="switchTab('3d')">3D Plot</button>[m
+         <button class="tab" onclick="switchTab('best')">Find Best ε</button>[m
+     </div>[m
+ [m
+[31m-    <!-- Normal plot panel -->[m
+[31m-    <div id="panel-normal" class="panel">[m
+[32m+[m[32m    <!-- 2d plot panel -->[m
+[32m+[m[32m    <div id="panel-2d" class="panel">[m
+         <div id="controls">[m
+             <div class="input-row">[m
+                 <label for="slider" id="epsilon_title">ε value:</label>[m
+[36m@@ -54,6 +55,22 @@[m
+         </div>[m
+     </div>[m
+ [m
+[32m+[m[32m    <!-- 3d plot panel -->[m
+[32m+[m[32m    <div id="panel-3d" class="panel" style="display:none;">[m
+[32m+[m[32m        <div id="controls-3d">[m
+[32m+[m[32m            <div class="input-row">[m
+[32m+[m[32m                <label for="slider-3d" id="epsilon-3d-title">ε value:</label>[m
+[32m+[m[32m                <input type="range" id="slider-3d" min="0.1" max="30.0" step="0.1" value="5.0">[m
+[32m+[m[32m                <input type="number" id="epsilon-3d" step="0.1" min="0.1" max="30.0" value="5.0">[m
+[32m+[m[32m            </div>[m
+[32m+[m[32m            <button id="Go3D">Go</button>[m
+[32m+[m[32m        </div>[m
+[32m+[m[32m        <div id="result-3d">[m
+[32m+[m[32m            <p id="error-msg-3d"></p>[m
+[32m+[m[32m            <img id="plot-img-3d" src="" alt="" style="display:none;">[m
+[32m+[m[32m        </div>[m
+[32m+[m[32m    </div>[m
+[32m+[m
+     <!-- Best epsilon panel -->[m
+     <div id="panel-best" class="panel" style="display:none;">[m
+         <div id="best-e-controls">[m

@@ -13,36 +13,56 @@
     <hr>
 
     <div id="shared-controls">
-        <div class="input-row">
-            <label for="RBF" id="RBF-label">RBF:</label>
-            <select id="RBF" name="basis function">
-                <option value="MQ">MQ</option>
-                <option value="IQ">IQ</option>
-                <option value="IMQ">IMQ</option>
-                <option value="GA">GA</option>
-            </select>
-            
-            <label for="test function" id="test-func-label">Test Function:</label>
-            <select id="testFunc" name="test function">
-                <option value="test_func1">runge</option>
-                <option value="test_func2">tanh</option>
-                <option value="test_func3">exp</option>
-                <option value="test_func4">abs</option>
-            </select>
-            <span id="func-display"></span>
+        <div class="input-row top-row">
+            <div class="left-controls">
+                <label for="RBF" id="RBF-label">RBF:</label>
+                <select id="RBF" name="basis function">
+                    <option value="MQ">MQ</option>
+                    <option value="IQ">IQ</option>
+                    <option value="IMQ">IMQ</option>
+                    <option value="GA">GA</option>
+                </select>
+
+                <label for="testFunc" id="test-func-label">Test Function:</label>
+                <select id="testFunc" name="test function">
+                    <option value="test_func1">runge</option>
+                    <option value="test_func2">tanh</option>
+                    <option value="test_func3">exp</option>
+                    <option value="test_func4">abs</option>
+                </select>
+                <span id="func-display"></span>
+            </div>
+
+            <div id="dim-toggle">
+                <span class="dim-label" id="label-2d">2D</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="toggle-3d">
+                    <span class="toggle-track">
+                        <span class="toggle-thumb"></span>
+                    </span>
+                </label>
+                <span class="dim-label" id="label-3d">3D</span>
+            </div>
         </div>
     </div>
 
-    <div id="tabs">
-        <button class="tab active" onclick="switchTab('normal')">Normal Plot</button>
+    <!-- 2D tab bar -->
+    <div id="tabs-2d" class="tab-bar">
+        <button class="tab active" onclick="switchTab('2d')">2D Plot</button>
         <button class="tab" onclick="switchTab('best')">Find Best ε</button>
     </div>
 
-    <!-- Normal plot panel -->
-    <div id="panel-normal" class="panel">
+    <!-- 3D tab bar -->
+    <div id="tabs-3d" class="tab-bar" style="display:none;">
+        <button class="tab active" onclick="switchTab('3d')">3D Plot</button>
+        <button class="tab" onclick="switchTab('best3d')">Find Best ε</button>
+    </div>
+
+    <!-- 2D plot panel -->
+    <div id="panel-2d" class="panel">
         <div id="controls">
             <div class="input-row">
-                <label for="slider" id="epsilon_title">ε value:</label>
+                <label for="slider">ε value:</label>
                 <input type="range" id="slider" min="0.1" max="30.0" step="0.1" value="5.0">
                 <input type="number" id="epsilon" step="0.1" min="0.1" max="15.0" value="5.0">
             </div>
@@ -54,7 +74,23 @@
         </div>
     </div>
 
-    <!-- Best epsilon panel -->
+    <!-- 3D plot panel -->
+    <div id="panel-3d" class="panel" style="display:none;">
+        <div id="controls-3d">
+            <div class="input-row">
+                <label for="slider-3d">ε value:</label>
+                <input type="range" id="slider-3d" min="0.1" max="30.0" step="0.1" value="5.0">
+                <input type="number" id="epsilon-3d" step="0.1" min="0.1" max="30.0" value="5.0">
+            </div>
+            <button id="Go3D">Go</button>
+        </div>
+        <div id="result-3d">
+            <p id="error-msg-3d"></p>
+            <img id="plot-img-3d" src="" alt="" style="display:none;">
+        </div>
+    </div>
+
+    <!-- 2D Best ε panel -->
     <div id="panel-best" class="panel" style="display:none;">
         <div id="best-e-controls">
             <div class="input-row">
@@ -70,6 +106,25 @@
             <img id="interp-img"    src="" alt="" style="display:none;">
             <img id="cum-error-img" src="" alt="" style="display:none;">
             <img id="ind-error-img" src="" alt="" style="display:none;">
+        </div>
+    </div>
+
+    <!-- 3D Best ε panel -->
+    <div id="panel-best3d" class="panel" style="display:none;">
+        <div id="best-e-3d-controls">
+            <div class="input-row">
+                <label for="start-3d">ε start:</label>
+                <input type="number" id="start-3d" step="0.1" value="3" required>
+                <label for="stop-3d" id="stop-3d-title">ε stop:</label>
+                <input type="number" id="stop-3d" step="0.1" value="7" required>
+            </div>
+            <button id="FindBestE3D">Find Best ε</button>
+        </div>
+        <div id="best-e-3d-result">
+            <p id="best-e-3d-msg"></p>
+            <img id="interp-img-3d"    src="" alt="" style="display:none;">
+            <img id="cum-error-img-3d" src="" alt="" style="display:none;">
+            <img id="ind-error-img-3d" src="" alt="" style="display:none;">
         </div>
     </div>
 
