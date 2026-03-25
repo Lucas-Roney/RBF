@@ -34,12 +34,13 @@
     </div>
 
     <div id="tabs">
-        <button class="tab active" onclick="switchTab('normal')">Normal Plot</button>
+        <button class="tab active" onclick="switchTab('2d')">2D Plot</button>
+        <button class="tab" onclick="switchTab('3d')">3D Plot</button>
         <button class="tab" onclick="switchTab('best')">Find Best ε</button>
     </div>
 
-    <!-- Normal plot panel -->
-    <div id="panel-normal" class="panel">
+    <!-- 2d plot panel -->
+    <div id="panel-2d" class="panel">
         <div id="controls">
             <div class="input-row">
                 <label for="slider" id="epsilon_title">ε value:</label>
@@ -51,6 +52,22 @@
         <div id="result">
             <p id="error-msg"></p>
             <img id="plot-img" src="" alt="" style="display:none;">
+        </div>
+    </div>
+
+    <!-- 3d plot panel -->
+    <div id="panel-3d" class="panel" style="display:none;">
+        <div id="controls-3d">
+            <div class="input-row">
+                <label for="slider-3d" id="epsilon-3d-title">ε value:</label>
+                <input type="range" id="slider-3d" min="0.1" max="30.0" step="0.1" value="5.0">
+                <input type="number" id="epsilon-3d" step="0.1" min="0.1" max="30.0" value="5.0">
+            </div>
+            <button id="Go3D">Go</button>
+        </div>
+        <div id="result-3d">
+            <p id="error-msg-3d"></p>
+            <img id="plot-img-3d" src="" alt="" style="display:none;">
         </div>
     </div>
 

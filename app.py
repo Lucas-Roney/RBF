@@ -110,6 +110,57 @@ def interpolate():
     except np.linalg.LinAlgError:
         return jsonify({"error": "Singular matrix — try a different ε value."}), 400
 
+@app.route("/interpolate_3d", methods=["POST"])
+def interpolate_3d():
+    data = request.get_json()
+    epsilon = float(data.get("epsilon", 5))
+
+    try:
+        x_grid = np.linspace(-1, 1, 11)
+        y_grid = np.linspace(-1, 1, 11)
+        xx, yy = np.meshgrid(x_grid, y_grid)
+        xx_flat = xx.flatten()
+        yy_flat = yy.flatten()
+        f = 1 / (1 + 16 * (xx_flat**2 + yy_flat**2))
+
+        # Build and solve the system
+        dx = xx_flat[:, None] - xx_flat[None, :]
+        dy = yy_flat[:, None] - yy_flat[None, :]
+        r  = np.sqrt(dx**2 + dy**2)
+        A  = np.exp(-(epsilon * r)**2)
+        c  = np.linalg.solve(A, f)
+
+        # Evaluate on a fine grid for plotting
+        x_plot = np.linspace(-1, 1, 100)
+        y_plot = np.linspace(-1, 1, 100)
+        xx_plot, yy_plot = np.meshgrid(x_plot, y_plot)
+        xx_flat_plot = xx_plot.flatten()
+        yy_flat_plot = yy_plot.flatten()
+
+        dx2 = xx_flat_plot[:, None] - xx_flat[None, :]
+        dy2 = yy_flat_plot[:, None] - yy_flat[None, :]
+        r2  = np.sqrt(dx2**2 + dy2**2)
+        z_vals = (np.exp(-(epsilon * r2)**2) @ c).reshape(xx_plot.shape)
+
+        # Plot
+        fig = plt.figure(figsize=(8, 6))
+        ax  = fig.add_subplot(111, projection='3d')
+        ax.plot_surface(xx_plot, yy_plot, z_vals, cmap='Spectral', alpha=0.8)
+        ax.scatter(xx_flat, yy_flat, f, color='k', s=10)
+        ax.set_title(f'ε = {epsilon}')
+        ax.set_xlabel('x')
+        ax.set_ylabel('y')
+        ax.set_zlabel('z')
+
+        buf = io.BytesIO()
+        fig.savefig(buf, format='png', dpi=120)
+        plt.close(fig)
+        buf.seek(0)
+        return jsonify({"image": base64.b64encode(buf.read()).decode("utf-8")})
+
+    except np.linalg.LinAlgError:
+        return jsonify({"error": "Singular matrix — try a different ε value."}), 400
+
 # ── Error / best-epsilon logic ────────────────────────────────────────────────
 
 def find_best_e(start, stop, rbf_name, func_name):

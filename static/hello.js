@@ -1,9 +1,10 @@
 function switchTab(tab) {
-    document.getElementById("panel-normal").style.display = tab === "normal" ? "block" : "none";
+    document.getElementById("panel-2d").style.display = tab === "2d" ? "block" : "none";
+    document.getElementById("panel-3d").style.display = tab === "3d" ? "block" : "none";
     document.getElementById("panel-best").style.display   = tab === "best"   ? "block" : "none";
 
     document.querySelectorAll(".tab").forEach((btn, i) => {
-        btn.classList.toggle("active", (i === 0 && tab === "normal") || (i === 1 && tab === "best"));
+        btn.classList.toggle("active", (i === 0 && tab === "2d") || (i === 1 && tab === "3d") || i === 2 && tab === "best");
     });
 }
 
@@ -124,5 +125,59 @@ document.getElementById("FindBestE").addEventListener("click", async () => {
     } catch (err) {
         msg.style.color = "#c0392b";
         msg.textContent = "Something went wrong. Is Flask running?";
+    }
+});
+
+const slider3d = document.getElementById("slider-3d");
+const input3d  = document.getElementById("epsilon-3d");
+
+slider3d.addEventListener("input", () => {
+    input3d.value = slider3d.value;
+});
+
+input3d.addEventListener("input", () => {
+    let val = parseFloat(input3d.value);
+    if (!isNaN(val)) slider3d.value = val;
+});
+
+input3d.addEventListener("change", () => {
+    let val = parseFloat(input3d.value);
+    if (!isNaN(val)) {
+        slider3d.value = val;
+        input3d.value = val.toFixed(1);
+    }
+});
+
+document.getElementById("Go3D").addEventListener("click", async () => {
+    const epsilon  = parseFloat(slider3d.value);
+    const errorMsg = document.getElementById("error-msg-3d");
+    const plotImg  = document.getElementById("plot-img-3d");
+
+    if (isNaN(epsilon)) {
+        errorMsg.textContent = "Please enter a valid epsilon value.";
+        return;
+    }
+
+    errorMsg.textContent = "Loading...";
+    plotImg.style.display = "none";
+
+    try {
+        const response = await fetch("/interpolate_3d", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ epsilon })
+        });
+
+        const data = await response.json();
+
+        if (data.error) {
+            errorMsg.textContent = data.error;
+        } else {
+            errorMsg.textContent = "";
+            plotImg.src = "data:image/png;base64," + data.image;
+            plotImg.style.display = "block";
+        }
+    } catch (err) {
+        errorMsg.textContent = "Something went wrong. Is Flask running?";
     }
 });
