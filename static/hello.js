@@ -226,45 +226,12 @@ document.getElementById("Go3D").addEventListener("click", async () => {
 
 // ── 3D Best ε ─────────────────────────────────────────────────────────────────
 document.getElementById("FindBestE3D").addEventListener("click", async () => {
-    const rbf   = document.getElementById("RBF").value;
-    const start = parseFloat(document.getElementById("start-3d").value);
-    const stop  = parseFloat(document.getElementById("stop-3d").value);
-
-    const msg         = document.getElementById("best-e-3d-msg");
+    const msg = document.getElementById("best-e-3d-msg");
     const interpImg   = document.getElementById("interp-img-3d");
     const cumErrorImg = document.getElementById("cum-error-img-3d");
     const indErrorImg = document.getElementById("ind-error-img-3d");
 
-    if (isNaN(start) || isNaN(stop)) {
-        msg.style.color = "#c0392b";
-        msg.textContent = "Please enter valid start and stop values.";
-        return;
-    }
-
-    msg.style.color = "#555";
-    msg.textContent = "Searching... (this may take a moment)";
+    msg.style.color = "#c0392b";
+    msg.textContent = "Unfortunately unavailable.";
     [interpImg, cumErrorImg, indErrorImg].forEach(img => img.style.display = "none");
-
-    try {
-        const response = await fetch("/find_best_e_3d", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ rbf, start, stop })
-        });
-        const data = await response.json();
-        if (data.error) {
-            msg.style.color = "#c0392b";
-            msg.textContent = data.error;
-        } else {
-            msg.style.color = "#2c7a2c";
-            msg.textContent = `Best ε = ${data.ideal_e}  |  Min max relative residual = ${data.min_error}`;
-            interpImg.src   = "data:image/png;base64," + data.interp;
-            cumErrorImg.src = "data:image/png;base64," + data.cumulative_error;
-            indErrorImg.src = "data:image/png;base64," + data.individual_error;
-            [interpImg, cumErrorImg, indErrorImg].forEach(img => img.style.display = "block");
-        }
-    } catch (err) {
-        msg.style.color = "#c0392b";
-        msg.textContent = "Something went wrong. Is Flask running?";
-    }
 });
